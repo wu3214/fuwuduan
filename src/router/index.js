@@ -5,8 +5,13 @@ import login from "@/views/login.vue";
 import firstpage from "@/views/firstpage.vue";
 import guanliyuan from "@/views/guanliyuan.vue";
 import chart from "@/views/chart.vue"
-Vue.use(VueRouter);
 
+const originalPush = VueRouter.prototype.push
+
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
+Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
