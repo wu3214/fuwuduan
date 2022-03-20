@@ -17,16 +17,16 @@
       </template>
     </el-table-column>
   </el-table> -->
-  <el-table :data="tableData" border :key="Math.random()" ref="classTimeTable">
+  <el-table :data="tableData" border :key="Math.random()" ref="classTimeTable" stripe style="width: 100%" max-height="780">
     <!-- <el-table-column type="selection"></el-table-column> -->
-    <el-table-column label="用户id">
+    <el-table-column label="用户id" width="160">
       <template slot-scope="scope">
         <!-- <el-input placeholder="请输入内容" v-show="scope.row.show" v-model="scope.row.id"></el-input> -->
         <!-- <span v-show="!scope.row.show">{{scope.row.id}}</span> -->
         <span>{{ scope.row.id }}</span>
       </template>
     </el-table-column>
-    <el-table-column label="昵称">
+    <el-table-column label="昵称" >
       <template slot-scope="scope">
         <el-input
           placeholder="请输入内容"
@@ -68,10 +68,12 @@
       </template>
     </el-table-column>
     <el-table-column label="操作">
-      <template slot-scope="scope">
+      <template slot-scope="scope" fixed='right'>
         <!-- <el-button @click="scope.row.show =true">编辑</el-button> -->
-        <el-button @click="handleEdit(scope)">编辑</el-button>
-        <el-button @click="handleSave(scope)">保存</el-button>
+        <el-button @click="handleEdit(scope)" type="text" size="small">编辑</el-button>
+        <el-button @click="handleSave(scope)" type="text" size="small">保存</el-button>
+        <el-button @click="handleDelete(scope)" type="text" size="small">删除</el-button>
+
       </template>
     </el-table-column>
   </el-table>
@@ -150,10 +152,48 @@ export default {
         console.log("请求错误", err);
       });
     },
-
-    // handleDelete(index, row) {
-    //   console.log(index, row);
-    // },
+//删除
+    handleDelete(sco) {
+      const service = axios.create({
+        baseURL: "http://172.22.217.134:8080", // api的base_url
+        timeout: 5000, // request timeout
+      });
+      //使用这个实例发送请求,返回一个promise对象
+      var requestOne = service.request({
+        url: "/api/yonghuDelete",
+        method: "get",
+        params: {
+          row: sco.row,
+        },
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers":
+            "Origin, X-Requested-With, Content-Type, Accept",
+          "Content-Type": "application/json",
+          "Accept-Language": "zh-cn",
+        },
+      });
+      //发送成功的回调
+      requestOne.then((res) => {
+       
+        if(res.data==true){
+          console.log('修改成功')
+              this.$message({message:'删除成功',type:'success'})
+              // this.$set(this.tableData,sco.$index,'')//用于解决table的数据改变而不更新，
+              // delete this.tableData[sco.$index]
+              // this.tableData(0,0,'')//用于解决table的数据改变而不更新，
+              this.$delete(this.tableData,sco.$index) //用this.$delete删除时，可以更新页面
+          console.log('this.tableData',this.tableData)
+        }else{
+          console.log('修改失败')
+          this.$message({message:'删除失败',type:'warning'})
+          // this.$set(this.tableData,sco.$index,this.temp)//用于解决table的数据改变而不更新，
+        }
+      });
+      requestOne.catch((err) => {
+        console.log("请求错误", err);
+      });
+    },
   },
   created() {
     const service = axios.create({
